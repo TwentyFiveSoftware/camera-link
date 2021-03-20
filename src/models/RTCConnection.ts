@@ -24,6 +24,9 @@ export default class RTCConnection {
         // create a new connection
         this.connection = new RTCPeerConnection(CONFIGURATION);
 
+        // log the current connection state in the console (for debugging purposes)
+        this.connection.onconnectionstatechange = _ => console.log(this.connection.connectionState);
+
         // create refs for the firebase collections
         this.connectionsCollectionRef = firebase.firestore().collection('connections');
     }
@@ -31,7 +34,7 @@ export default class RTCConnection {
     /**
      * @return returns the connection id
      */
-    public async offer(): Promise<string> {
+    public async offer(videoStream: MediaStream): Promise<string> {
         // create a SDP offer and set as local connection description
         const offer = await this.connection.createOffer({ offerToReceiveVideo: true });
         await this.connection.setLocalDescription(offer);
@@ -40,20 +43,26 @@ export default class RTCConnection {
         const doc = { offer: { type: offer.type, sdp: offer.sdp } };
         const connectionDocRef = await this.connectionsCollectionRef.add(doc);
 
+        const iceCandidatesCollectionRef = connectionDocRef.collection('candidates');
+        this.listenForIceCandidates(iceCandidatesCollectionRef);
+
         // listen for an answer
         connectionDocRef.onSnapshot(async snapshot => {
             const data = snapshot.data();
 
             // return if the connection has already been answered or if the document snapshot doesn't contain an answer
-            if (this.connection.currentRemoteDescription || !data?.answer) return;
+            if (this.connection.currentRemoteDescription || !data || !data.answer) return;
 
             // create a SDP answer from the firestore document and set it as the remote description
             const answer = new RTCSessionDescription(data.answer);
             await this.connection.setRemoteDescription(answer);
         });
 
-        // listen for ICE candidates
-        this.listenForIceCandidates(connectionDocRef.collection('candidates'));
+        this.listenForIceCandidateUpdates(iceCandidatesCollectionRef);
+
+        this.connection.addEventListener('track', ({ streams }) =>
+            streams[0].getTracks().forEach(track => videoStream.addTrack(track)),
+        );
 
         // return the connection id
         return connectionDocRef.id;
@@ -62,11 +71,16 @@ export default class RTCConnection {
     /**
      * @return returns whether the answer was successful
      */
-    public async answer(connectionId: string): Promise<boolean> {
+    public async answer(connectionId: string, stream: MediaStream): Promise<boolean> {
+        stream.getTracks().forEach(track => this.connection.addTrack(track, stream));
+
         const connectionDocRef = this.connectionsCollectionRef.doc(connectionId);
         const connectionDoc = await connectionDocRef.get();
 
         if (!connectionDoc.exists) return false;
+
+        const iceCandidatesCollectionRef = connectionDocRef.collection('candidates');
+        this.listenForIceCandidates(iceCandidatesCollectionRef);
 
         // get the SDP offer from the firestore document and set it as remote description
         const offer = connectionDoc.data()?.offer;
@@ -79,22 +93,27 @@ export default class RTCConnection {
         // add the answer to the firestore document
         await connectionDocRef.update({ answer: { type: answer.type, sdp: answer.sdp } });
 
-        // listen for ICE candidates
-        this.listenForIceCandidates(connectionDocRef.collection('candidates'));
+        this.listenForIceCandidateUpdates(iceCandidatesCollectionRef);
 
         return true;
     }
 
+    /**
+     * listen for ICE candidates
+     */
     private listenForIceCandidates(candidatesCollectionRef: firebase.firestore.CollectionReference): void {
-        // listen for ICE candidates
         this.connection.addEventListener('icecandidate', async e => {
             if (!e.candidate) return;
 
             // add the candidate to the firebase connection document
             await candidatesCollectionRef.add(e.candidate.toJSON());
         });
+    }
 
-        // listen for changes on the ICE candidate list in the firebase connection document
+    /**
+     * listen for changes on the ICE candidate list in the firebase connection document
+     */
+    private listenForIceCandidateUpdates(candidatesCollectionRef: firebase.firestore.CollectionReference) {
         candidatesCollectionRef.onSnapshot(snapshot => {
             snapshot
                 .docChanges()
