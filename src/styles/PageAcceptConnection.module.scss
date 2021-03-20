@@ -1,0 +1,25 @@
+.page {
+    display: grid;
+    place-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 100vw;
+    max-width: max-content;
+    padding: 5rem;
+    background-color: var(--color-main);
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    display: grid;
+    justify-items: center;
+}
+
+.video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}

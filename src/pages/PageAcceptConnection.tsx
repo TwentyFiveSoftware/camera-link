@@ -1,6 +1,8 @@
 import React, { createRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { rtcConnection } from '../App';
+import styles from '../styles/PageAcceptConnection.module.scss';
+import Button from '../components/Button';
 
 const PageAcceptConnection = () => {
     const videoRef = createRef<HTMLVideoElement>();
@@ -19,10 +21,13 @@ const PageAcceptConnection = () => {
     };
 
     return (
-        <div>
-            <button onClick={() => acceptConnection(connectionId)}>Accept Connection</button>
-            <video ref={videoRef} muted={true} autoPlay={true} playsInline={true} />
-        </div>
+        <main className={styles.page}>
+            <section className={styles.container}>
+                <Button onClick={() => acceptConnection(connectionId)}>Accept Connection</Button>
+            </section>
+
+            <video ref={videoRef} muted={true} autoPlay={true} playsInline={true} className={styles.video} />
+        </main>
     );
 };
 

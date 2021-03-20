@@ -1,0 +1,13 @@
+.button {
+    appearance: none;
+    background: none;
+    border: 0.2rem solid var(--color-accent);
+    padding: 1.2rem 2.5rem;
+    font-size: 1.8rem;
+    color: var(--color-accent);
+    border-radius: 1rem;
+    user-select: none;
+    cursor: pointer;
+    outline: none;
+    font-weight: 600;
+}

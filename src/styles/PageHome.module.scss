@@ -1,0 +1,58 @@
+.page {
+    display: grid;
+    place-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 100vw;
+    max-width: max-content;
+    padding: 5rem;
+    background-color: var(--color-main);
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    display: grid;
+    justify-items: center;
+}
+
+.headline {
+    font-size: 4rem;
+    color: var(--color-text);
+    position: relative;
+    margin-bottom: 5rem;
+    text-align: center;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+
+    &:after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -1.5rem;
+        width: 5rem;
+        height: 0.2rem;
+        background-color: var(--color-main-light);
+        transform: translateX(-50%);
+    }
+}
+
+.idText {
+    color: var(--color-text-light);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.link {
+    color: var(--color-accent);
+    font-size: 1.7rem;
+    text-decoration: underline;
+}
+
+.video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
