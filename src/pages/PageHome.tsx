@@ -1,4 +1,5 @@
 import React, { createRef, useState } from 'react';
+import QRCode from 'qrcode.react';
 import { rtcConnection } from '../App';
 import styles from '../styles/PageHome.module.scss';
 import Button from '../components/Button';
@@ -16,19 +17,21 @@ const PageHome = () => {
         setConnectionId(id);
     };
 
+    const url = `${window.location.href}${connectionId}`;
+
     return (
         <main className={styles.page}>
             <section className={styles.container}>
-                <h1 className={styles.headline}>Camera-Link</h1>
+                <h1 className={styles.headline}>CAMERA-LINK</h1>
                 {connectionId === '' ? (
                     <Button onClick={createConnection}>CREATE CONNECTION</Button>
                 ) : (
                     <>
+                        <QRCode value={url} size={250} bgColor={'#00000000'} fgColor={'#83A868'} />
                         <p className={styles.idText}>{connectionId}</p>
-                        <a
-                            className={styles.link}
-                            href={`${window.location.href}${connectionId}`}
-                        >{`${window.location.href}${connectionId}`}</a>
+                        <a className={styles.link} href={url}>
+                            {url}
+                        </a>
                     </>
                 )}
             </section>
