@@ -20,7 +20,9 @@
     },
     "scripts": {
         "start": "react-scripts start",
-        "build": "react-scripts build"
+        "build": "react-scripts build",
+        "predeploy": "npm run build",
+        "deploy": "firebase deploy --only hosting"
     },
     "eslintConfig": {
         "extends": [
