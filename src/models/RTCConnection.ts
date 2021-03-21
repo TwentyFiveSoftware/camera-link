@@ -11,7 +11,7 @@ if (!firebase.apps.length)
         appId: process.env.REACT_APP_FIREBASE_APP_ID,
     });
 
-const CONFIGURATION = {
+const CONFIGURATION: RTCConfiguration = {
     iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }],
     iceCandidatePoolSize: 10,
 };

@@ -32,7 +32,7 @@ const PageAcceptConnection = () => {
 
         const deviceId = (await navigator.mediaDevices.enumerateDevices())
             .filter(device => device.kind === 'videoinput')
-            .reverse()[deviceIndex].deviceId;
+            .reverse()[deviceIndex]?.deviceId;
 
         currentStream.getTracks().forEach(track => track.stop());
 
