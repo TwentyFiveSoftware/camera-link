@@ -70,6 +70,13 @@ const PageAcceptConnection = () => {
         if (videoRef.current) videoRef.current.srcObject = currentStream;
     }, [currentStream, videoRef]);
 
+    useEffect(() => {
+        rtcConnection.setDisconnectCallback(() => {
+            currentStream.getTracks().forEach(track => track.stop());
+            alert('Connection closed!');
+        });
+    }, [currentStream]);
+
     return (
         <main className={styles.page}>
             {currentStream.getTracks().length === 0 ? (

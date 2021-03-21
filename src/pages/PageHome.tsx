@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import QRCode from 'qrcode.react';
 import { rtcConnection } from '../App';
 import styles from '../styles/PageHome.module.scss';
@@ -16,6 +16,13 @@ const PageHome = () => {
         console.log('Connection ID:', id);
         setConnectionId(id);
     };
+
+    useEffect(() => {
+        rtcConnection.setDisconnectCallback(() => {
+            console.log('Connection closed!');
+            window.location.reload();
+        });
+    }, []);
 
     const url = `${window.location.href}${connectionId}`;
 

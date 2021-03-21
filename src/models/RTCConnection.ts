@@ -19,6 +19,7 @@ const CONFIGURATION: RTCConfiguration = {
 export default class RTCConnection {
     private connection: RTCPeerConnection;
     private connectionsCollectionRef: firebase.firestore.CollectionReference;
+    private disconnectCallback: Function = () => {};
 
     constructor() {
         // create a new connection
@@ -26,6 +27,11 @@ export default class RTCConnection {
 
         // log the current connection state in the console (for debugging purposes)
         this.connection.onconnectionstatechange = _ => console.log(this.connection.connectionState);
+
+        // register connection disconnect callback
+        this.connection.oniceconnectionstatechange = _ => {
+            if (this.connection.iceConnectionState === 'disconnected') this.disconnectCallback();
+        };
 
         // create refs for the firebase collections
         this.connectionsCollectionRef = firebase.firestore().collection('connections');
@@ -132,5 +138,9 @@ export default class RTCConnection {
 
     public isConnectionEstablished(): boolean {
         return this.connection.connectionState === 'connected';
+    }
+
+    public setDisconnectCallback(callback: Function): void {
+        this.disconnectCallback = callback;
     }
 }
