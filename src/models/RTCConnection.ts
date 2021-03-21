@@ -125,4 +125,12 @@ export default class RTCConnection {
                 });
         });
     }
+
+    public async changeTracks(stream: MediaStream): Promise<void> {
+        this.connection.getSenders()[0]?.replaceTrack(stream.getVideoTracks()[0]);
+    }
+
+    public isConnectionEstablished(): boolean {
+        return this.connection.connectionState === 'connected';
+    }
 }

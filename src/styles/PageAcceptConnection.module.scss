@@ -13,6 +13,7 @@
     box-shadow: var(--shadow);
     display: grid;
     justify-items: center;
+    row-gap: 3rem;
 }
 
 .video {
@@ -21,5 +22,4 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: none;
 }
