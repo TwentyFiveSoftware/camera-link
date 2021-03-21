@@ -1,28 +1,31 @@
-import React, { createRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode.react';
 import { rtcConnection } from '../App';
 import styles from '../styles/PageHome.module.scss';
-import Button from '../components/Button';
 
 const PageHome = () => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [currentStream, setCurrentStream] = useState<MediaStream>(new MediaStream());
     const [connectionId, setConnectionId] = useState<string>('');
-    const videoRef = createRef<HTMLVideoElement>();
-
-    const createConnection = async () => {
-        const stream = new MediaStream();
-        if (videoRef.current) videoRef.current.srcObject = stream;
-
-        const id = await rtcConnection.offer(stream);
-        console.log('Connection ID:', id);
-        setConnectionId(id);
-    };
 
     useEffect(() => {
+        const stream = new MediaStream();
+        setCurrentStream(stream);
+
+        rtcConnection.offer(stream).then(id => {
+            console.log('Connection ID:', id);
+            setConnectionId(id);
+        });
+
         rtcConnection.setDisconnectCallback(() => {
             console.log('Connection closed!');
             window.location.reload();
         });
     }, []);
+
+    useEffect(() => {
+        if (videoRef.current) videoRef.current.srcObject = currentStream;
+    }, [currentStream, videoRef]);
 
     const url = `${window.location.href}${connectionId}`;
 
@@ -30,9 +33,7 @@ const PageHome = () => {
         <main className={styles.page}>
             <section className={styles.container}>
                 <h1 className={styles.headline}>CAMERA-LINK</h1>
-                {connectionId === '' ? (
-                    <Button onClick={createConnection}>CREATE CONNECTION</Button>
-                ) : (
+                {connectionId !== '' && (
                     <>
                         <QRCode value={url} size={250} bgColor={'#00000000'} fgColor={'#83A868'} />
                         <p className={styles.idText}>{connectionId}</p>
